@@ -20,7 +20,7 @@ contract ShowResult is Common {
     function getData(string calldata serviceHandlerAddr, uint64 trigger) public view {
         SimpleSubmit submit = SimpleSubmit(vm.parseAddress(serviceHandlerAddr));
 
-        ITypes.TriggerId triggerId = ITypes.TriggerId.wrap(1);
+        ITypes.TriggerId triggerId = ITypes.TriggerId.wrap(trigger);
         bytes memory data = submit.getData(triggerId);
         console.log("Data:", string(data));
     }

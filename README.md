@@ -180,7 +180,7 @@ Deploy the compiled component with the contracts from the previous steps. Review
 ```bash docci-delay-per-cmd=1
 # Build your service JSON
 # The trigger is on `local2` while the submission is on `local` (main)
-TRIGGER_CHAIN=local2 SUBMIT_CHAIN=local COMPONENT_FILENAME=eth_price_oracle.wasm sh ./script/build_service.sh
+SUBMIT_CHAIN=local SUBMIT_ADDRESS=$SERVICE_HANDLER TRIGGER_ADDRESS=$SERVICE_TRIGGER_ADDR TRIGGER_CHAIN=local2 COMPONENT_FILENAME=eth_price_oracle.wasm sh ./script/build_service.sh
 
 # Deploy the service JSON
 SERVICE_CONFIG_FILE=.docker/service.json make deploy-service
@@ -205,5 +205,5 @@ Query the latest submission contract id from the previous request made.
 #
 RPC_URL=http://localhost:8645 make show-trigger-id
 
-RPC_URL=http://localhost:8545 SERVICE_SUBMISSION_ADDR=$SERVICE_HANDLER TRIGGER_ID=2 make show-result
+RPC_URL=http://localhost:8545 SERVICE_SUBMISSION_ADDR=$SERVICE_HANDLER TRIGGER_ID=1 make show-result
 ```
