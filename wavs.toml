@@ -26,7 +26,7 @@ cors_allowed_origins = [
 # data = "~/wavs/data"
 
 # active chain names to watch for triggers
-active_trigger_chains = ["local"]
+active_trigger_chains = ["local", "local2"]
 
 max_wasm_fuel = 1_000_000
 
@@ -76,7 +76,6 @@ http_endpoint = "http://localhost:8545"
 chain_id = "31337"
 ws_endpoint = "ws://localhost:8545"
 http_endpoint = "http://localhost:8545"
-aggregator_endpoint = "http://localhost:8001"
 
 [chains.eth.local2]
 chain_id = "31338"

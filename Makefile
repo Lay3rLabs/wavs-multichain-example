@@ -116,9 +116,13 @@ upload-component:
 deploy-service:
 	@$(WAVS_CMD) deploy-service-raw --log-level=info --data /data/.docker --home /data --service `jq -c . < $(SERVICE_CONFIG_FILE)`
 
-## show-result: showing the result | SERVICE_TRIGGER_ADDR, SERVICE_SUBMISSION_ADDR, RPC_URL
+
+show-trigger-id:
+	@forge script ./script/ShowResult.s.sol ${SERVICE_TRIGGER_ADDR} --sig "run(string)" --rpc-url $(RPC_URL) --broadcast -v 4
+
+TRIGGER_ID?=1
 show-result:
-	@forge script ./script/ShowResult.s.sol ${SERVICE_TRIGGER_ADDR} ${SERVICE_SUBMISSION_ADDR} --sig "run(string,string)" --rpc-url $(RPC_URL) --broadcast -v 4
+	@forge script ./script/ShowResult.s.sol ${SERVICE_SUBMISSION_ADDR} ${TRIGGER_ID} --sig "getData(string,uint64)" --rpc-url $(RPC_URL) --broadcast -v 4
 
 _build_forge:
 	@forge build

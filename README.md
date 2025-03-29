@@ -144,13 +144,12 @@ COIN_MARKET_CAP_ID=1 make wasi-exec
 Start an ethereum node (anvil), the WAVS service, and deploy [eigenlayer](https://www.eigenlayer.xyz/) contracts to the local network.
 
 ```bash docci-background docci-delay-after=5
-# cp .env.example .env
-
-# Start the backend
-#
-# This must remain running in your terminal. Use another terminal to run other commands.
-# You can stop the services with `ctrl+c`. Some MacOS terminals require pressing it twice.
+# starts 2 anvil networks
+# 1: 8545 (31337)
+# 2: 8645 (31338)
+anvil --chain-id 8645 --port 8645 &
 make start-all
+
 ```
 
 ### Deploy Contract
@@ -158,8 +157,16 @@ make start-all
 Upload your service's trigger and submission contracts. The trigger contract is where WAVS will watch for events, and the submission contract is where the AVS service operator will submit the result on chain.
 
 ```bash docci-delay-per-cmd=1
+# deploy just the trigger to chain 2 (no eigenlayer here)
+forge script ./script/Deploy.s.sol 0x0000000000000000000000000000000000000000 false --sig "run(string,bool)" --rpc-url http://localhost:8645 --broadcast
+export SERVICE_TRIGGER_ADDR=`make get-trigger-from-deploy`
+
+
+# deploy the submission contracts to the main instance with Eigenlayer
 export SERVICE_MANAGER_ADDR=`make get-eigen-service-manager-from-deploy`
-forge script ./script/Deploy.s.sol ${SERVICE_MANAGER_ADDR} --sig "run(string)" --rpc-url http://localhost:8545 --broadcast
+DEPLOY_SUBMIT=true
+forge script ./script/Deploy.s.sol ${SERVICE_MANAGER_ADDR} ${DEPLOY_SUBMIT} --sig "run(string,bool)" --rpc-url http://localhost:8545 --broadcast
+export SERVICE_HANDLER=`make get-service-handler-from-deploy`
 ```
 
 > [!TIP]
@@ -172,7 +179,8 @@ Deploy the compiled component with the contracts from the previous steps. Review
 
 ```bash docci-delay-per-cmd=1
 # Build your service JSON
-COMPONENT_FILENAME=eth_price_oracle.wasm sh ./script/build_service.sh
+# The trigger is on `local2` while the submission is on `local` (main)
+SUBMIT_CHAIN=local SUBMIT_ADDRESS=$SERVICE_HANDLER TRIGGER_ADDRESS=$SERVICE_TRIGGER_ADDR TRIGGER_CHAIN=local2 COMPONENT_FILENAME=eth_price_oracle.wasm sh ./script/build_service.sh
 
 # Deploy the service JSON
 SERVICE_CONFIG_FILE=.docker/service.json make deploy-service
@@ -184,8 +192,8 @@ Anyone can now call the [trigger contract](./src/contracts/WavsTrigger.sol) whic
 
 ```bash
 export COIN_MARKET_CAP_ID=1
-export SERVICE_TRIGGER_ADDR=`make get-trigger-from-deploy`
-forge script ./script/Trigger.s.sol ${SERVICE_TRIGGER_ADDR} ${COIN_MARKET_CAP_ID} --sig "run(string,string)" --rpc-url http://localhost:8545 --broadcast -v 4
+# export SERVICE_TRIGGER_ADDR=`make get-trigger-from-deploy`
+forge script ./script/Trigger.s.sol ${SERVICE_TRIGGER_ADDR} ${COIN_MARKET_CAP_ID} --sig "run(string,string)" --rpc-url http://localhost:8645 --broadcast -v 4
 ```
 
 ## Show the result
@@ -194,5 +202,14 @@ Query the latest submission contract id from the previous request made.
 
 ```bash docci-delay-per-cmd=2 docci-output-contains="BTC"
 # Get the latest TriggerId and show the result via `script/ShowResult.s.sol`
-make show-result
+#
+RPC_URL=http://localhost:8645 make show-trigger-id
+
+RPC_URL=http://localhost:8545 SERVICE_SUBMISSION_ADDR=$SERVICE_HANDLER TRIGGER_ID=1 make show-result
+```
+
+Cleanup the remaining anvil instances.
+
+```bash
+killall anvil
 ```
