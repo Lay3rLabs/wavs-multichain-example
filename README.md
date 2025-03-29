@@ -207,3 +207,9 @@ RPC_URL=http://localhost:8645 make show-trigger-id
 
 RPC_URL=http://localhost:8545 SERVICE_SUBMISSION_ADDR=$SERVICE_HANDLER TRIGGER_ID=1 make show-result
 ```
+
+Cleanup the remaining anvil instances.
+
+```bash
+killall anvil
+```
