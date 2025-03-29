@@ -20,15 +20,20 @@ contract Deploy is Common {
      * @dev Deploys the SimpleSubmit and SimpleTrigger contracts and writes the results to a JSON file
      * @param _serviceManagerAddr The address of the service manager
      */
-    function run(string calldata _serviceManagerAddr) public {
+    function run(string calldata _serviceManagerAddr, bool _deploySubmit) public {
         vm.startBroadcast(_privateKey);
-        SimpleSubmit _submit = new SimpleSubmit(IWavsServiceManager(vm.parseAddress(_serviceManagerAddr)));
+
+        SimpleSubmit _submit;
         SimpleTrigger _trigger = new SimpleTrigger();
+        if(_deploySubmit) {
+            _submit = new SimpleSubmit(IWavsServiceManager(vm.parseAddress(_serviceManagerAddr)));
+        }
+
         vm.stopBroadcast();
 
         string memory _json = "json";
         _json.serialize("service_handler", toChecksumAddress(address(_submit)));
-        _json.serialize("trigger", toChecksumAddress(address(_trigger)));
+         _json.serialize("trigger", toChecksumAddress(address(_trigger)));
         string memory _finalJson = _json.serialize("service_manager", _serviceManagerAddr);
         vm.writeFile(script_output_path, _finalJson);
     }

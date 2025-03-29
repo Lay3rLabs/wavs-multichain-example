@@ -9,17 +9,19 @@ import {console} from "forge-std/console.sol";
 
 /// @dev Script to show the result of a trigger
 contract ShowResult is Common {
-    function run(string calldata serviceTriggerAddr, string calldata serviceHandlerAddr) public {
-        vm.startBroadcast(_privateKey);
+    function run(string calldata serviceTriggerAddr) public view {
         SimpleTrigger trigger = SimpleTrigger(vm.parseAddress(serviceTriggerAddr));
-        SimpleSubmit submit = SimpleSubmit(vm.parseAddress(serviceHandlerAddr));
+
 
         ITypes.TriggerId triggerId = trigger.nextTriggerId();
-        console.log("Fetching data for TriggerId", ITypes.TriggerId.unwrap(triggerId));
+        console.log("Next TriggerId", ITypes.TriggerId.unwrap(triggerId));
+    }
 
+    function getData(string calldata serviceHandlerAddr, uint64 trigger) public view {
+        SimpleSubmit submit = SimpleSubmit(vm.parseAddress(serviceHandlerAddr));
+
+        ITypes.TriggerId triggerId = ITypes.TriggerId.wrap(1);
         bytes memory data = submit.getData(triggerId);
         console.log("Data:", string(data));
-
-        vm.stopBroadcast();
     }
 }
