@@ -147,7 +147,7 @@ Start an ethereum node (anvil), the WAVS service, and deploy [eigenlayer](https:
 # starts 2 anvil networks
 # 1: 8545 (31337)
 # 2: 8645 (31338)
-anvil --chain-id 8645 --port 8645 &
+# anvil --chain-id 8645 --port 8645 &
 make start-all
 
 ```
@@ -157,10 +157,8 @@ make start-all
 Upload your service's trigger and submission contracts. The trigger contract is where WAVS will watch for events, and the submission contract is where the AVS service operator will submit the result on chain.
 
 ```bash docci-delay-per-cmd=1
-# deploy just the trigger to chain 2 (no eigenlayer here)
-forge script ./script/Deploy.s.sol 0x0000000000000000000000000000000000000000 false --sig "run(string,bool)" --rpc-url http://localhost:8645 --broadcast
-export SERVICE_TRIGGER_ADDR=`make get-trigger-from-deploy`
-
+# using base wrapped ETh contract -- https://basescan.org/address/0x4200000000000000000000000000000000000006
+export SERVICE_TRIGGER_ADDR="0x4200000000000000000000000000000000000006"
 
 # deploy the submission contracts to the main instance with Eigenlayer
 export SERVICE_MANAGER_ADDR=`make get-eigen-service-manager-from-deploy`
@@ -180,10 +178,13 @@ Deploy the compiled component with the contracts from the previous steps. Review
 ```bash docci-delay-per-cmd=1
 # Build your service JSON
 # The trigger is on `local2` while the submission is on `local` (main)
-SUBMIT_CHAIN=local SUBMIT_ADDRESS=$SERVICE_HANDLER TRIGGER_ADDRESS=$SERVICE_TRIGGER_ADDR TRIGGER_CHAIN=local2 COMPONENT_FILENAME=eth_price_oracle.wasm sh ./script/build_service.sh
+export TRIGGER_EVENT="0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef" # found in events tab, topic0 of base etherscan
+SUBMIT_CHAIN=local SUBMIT_ADDRESS=$SERVICE_HANDLER TRIGGER_ADDRESS=$SERVICE_TRIGGER_ADDR TRIGGER_CHAIN=base COMPONENT_FILENAME=eth_price_oracle.wasm sh ./script/build_service.sh
 
 # Deploy the service JSON
 SERVICE_CONFIG_FILE=.docker/service.json make deploy-service
+
+# TODO: you have to properly write the component to parse the event data
 ```
 
 ## Trigger the Service
@@ -196,7 +197,7 @@ export COIN_MARKET_CAP_ID=1
 forge script ./script/Trigger.s.sol ${SERVICE_TRIGGER_ADDR} ${COIN_MARKET_CAP_ID} --sig "run(string,string)" --rpc-url http://localhost:8645 --broadcast -v 4
 ```
 
-## Show the result
+<!-- ## Show the result
 
 Query the latest submission contract id from the previous request made.
 
@@ -206,7 +207,7 @@ Query the latest submission contract id from the previous request made.
 RPC_URL=http://localhost:8645 make show-trigger-id
 
 RPC_URL=http://localhost:8545 SERVICE_SUBMISSION_ADDR=$SERVICE_HANDLER TRIGGER_ID=1 make show-result
-```
+``` -->
 
 Cleanup the remaining anvil instances.
 

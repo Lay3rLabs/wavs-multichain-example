@@ -26,7 +26,7 @@ cors_allowed_origins = [
 # data = "~/wavs/data"
 
 # active chain names to watch for triggers
-active_trigger_chains = ["local", "local2"]
+active_trigger_chains = ["local", "base"]
 
 max_wasm_fuel = 1_000_000
 
@@ -71,6 +71,11 @@ gas_denom = "untrn"
 chain_id = "31337"
 ws_endpoint = "ws://localhost:8545"
 http_endpoint = "http://localhost:8545"
+
+[chains.eth.base]
+chain_id = "8453"
+ws_endpoint = "wss://base.drpc.org"
+http_endpoint = "https://base.drpc.org"
 
 [chains.eth.local-aggregator]
 chain_id = "31337"
