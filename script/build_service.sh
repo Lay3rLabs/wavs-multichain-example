@@ -28,7 +28,7 @@ TRIGGER_EVENT=${TRIGGER_EVENT:-"NewTrigger(bytes)"}
 TRIGGER_CHAIN=${TRIGGER_CHAIN:-"local2"}
 SUBMIT_CHAIN=${SUBMIT_CHAIN:-"local"}
 
-BASE_CMD="docker run --rm --network host -w /data -v $(pwd):/data ghcr.io/lay3rlabs/wavs:latest wavs-cli service --json true --home /data --file /data/${FILE_LOCATION}"
+BASE_CMD="docker run --rm --network host -w /data -v $(pwd):/data ghcr.io/lay3rlabs/wavs:0.4.0-alpha1-amd64 wavs-cli service --json true --home /data --file /data/${FILE_LOCATION}"
 
 if [ -z "$TRIGGER_ADDRESS" ]; then
     TRIGGER_ADDRESS=`jq -r '.trigger' ".docker/script_deploy.json"`
@@ -43,7 +43,13 @@ fi
 
 # === Core ===
 
-TRIGGER_EVENT_HASH=`cast keccak ${TRIGGER_EVENT}`
+# if TRIGGER_EVENT does not start with 0x, hash it
+if [[ ! $TRIGGER_EVENT =~ ^0x ]]; then
+    TRIGGER_EVENT_HASH=`cast keccak ${TRIGGER_EVENT}`
+else
+    TRIGGER_EVENT_HASH="${TRIGGER_EVENT}"
+fi
+
 
 SERVICE_ID=`$BASE_CMD init --name demo | jq -r .id`
 echo "Service ID: ${SERVICE_ID}"

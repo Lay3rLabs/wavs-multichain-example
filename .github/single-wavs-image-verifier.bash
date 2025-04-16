@@ -54,18 +54,18 @@ main() {
 test_data() {
     # Example test data
     TEST_DATA="
-    Running container ghcr.io/lay3rlabs/wavs:latest-beta
-    Pulling ghcr.io/lay3rlabs/wavs:latest
+    Running container ghcr.io/lay3rlabs/wavs:0.4.0-alpha1-amd64-beta
+    Pulling ghcr.io/lay3rlabs/wavs:0.4.0-alpha1-amd64
     Found ghcr.io/lay3rlabs/wavs:0.1.0
     Invalid: docker.io/other/image:1.0
     Using ghcr.io/lay3rlabs/wavs:sha-abc123
     ghcr.io/lay3rlabs/wavs:rc.1.0.0
-    Pulling ghcr.io/lay3rlabs/wavs:latest
+    Pulling ghcr.io/lay3rlabs/wavs:0.4.0-alpha1-amd64
     Found ghcr.io/lay3rlabs/wavs:0.1.0
     Invalid: docker.io/other/image:1.0
     Using ghcr.io/lay3rlabs/wavs:sha-abc123
     ghcr.io/lay3rlabs/wavs:rc.1.0.0
-    ghcr.io/lay3rlabs/wavs:latest-beta
+    ghcr.io/lay3rlabs/wavs:0.4.0-alpha1-amd64-beta
     ghcr.io/lay3rlabs/wavs:1.0.0-alpha
     "
 
